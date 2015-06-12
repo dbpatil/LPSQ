@@ -592,7 +592,7 @@ public class DAOImpl {
 	}
 
 	public String makeStatusChange(String sl_no) {
-		System.out.println(LOG+"makeStatusChange");
+		System.out.println(LOG+"makeStatusChange ");
 		System.out.println("SL No is "+sl_no);
 		session=sessionFactory.openSession();
 		session.beginTransaction();
