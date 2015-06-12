@@ -9,6 +9,7 @@
 <body>
 <h1>Admin Page</h1>
 <br>
-<a href="listOfSolutionAdmin">Manage Institutes</a>
+<a href="listOfSolutionAdmin">Manage Institutes</a><br>
+<a href="Logout">Logout</a>
 </body>
 </html>

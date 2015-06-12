@@ -680,4 +680,14 @@ public class LPSQController {
 		return "redirect:listOfSolutionAdmin";
 	}
 	
+	@RequestMapping("/Logout")
+	public String logout(HttpSession  session, ModelMap map) 
+	{
+		System.out.println(LOG+"logout");
+		session.removeAttribute("user");
+		session.invalidate();
+		map.addAttribute("msg","<h1>Success</h1><br><h1><i>Logged out Successfully</i></h1>");
+		return "Logout";
+	}
+	
 }

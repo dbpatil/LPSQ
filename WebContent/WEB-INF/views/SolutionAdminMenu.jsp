@@ -12,5 +12,6 @@
 <a href="openManageTopicsView">Manage Topics</a><br>
 <a href="openReportView">Report</a><br>
 <a href="openBroadCastView">BroadCast</a><br>
+<a href="Logout">Logout</a>
 </body>
 </html>
