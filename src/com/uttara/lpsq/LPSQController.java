@@ -676,7 +676,7 @@ public class LPSQController {
 	{
 		System.out.println(LOG+"makeStatusChange");
 		System.out.println("SL_NO is "+sl_no);
-		service.makeStatusChange(sl_no);
+		String res= service.makeStatusChange(sl_no);
 		return "redirect:listOfSolutionAdmin";
 	}
 	

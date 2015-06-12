@@ -199,8 +199,7 @@ public class LPSQService {
 	public String makeStatusChange(String sl_no) {
 		System.out.println(LOG+"makeStatusChange");
 		System.out.println("SL No is "+sl_no);
-		
-		return null;
+		return daoImpl.makeStatusChange(sl_no);
 	}
 
 }

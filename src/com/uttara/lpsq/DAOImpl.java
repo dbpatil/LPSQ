@@ -596,8 +596,15 @@ public class DAOImpl {
 		System.out.println("SL No is "+sl_no);
 		session=sessionFactory.openSession();
 		session.beginTransaction();
-		UserDetails details=(UserDetails) session.createQuery("FROM USERDETAILS WHERE id=?").setInteger(0, bean.getUser_sl_no()).list().get(0);
-		return null;
+		UserDetails details=(UserDetails) session.createQuery("FROM USERDETAILS WHERE id=?").setInteger(0, Integer.parseInt(sl_no)).list().get(0);
+		if(details.isActivationStatus())
+			details.setActivationStatus(false);
+		else
+			details.setActivationStatus(true);
+		session.saveOrUpdate(details);
+		session.getTransaction().commit();
+		session.close();
+		return Constants.SUCCESS;
 	}	
 	
 	
