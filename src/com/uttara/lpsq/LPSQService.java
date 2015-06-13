@@ -1,5 +1,6 @@
 package com.uttara.lpsq;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -200,6 +201,24 @@ public class LPSQService {
 		System.out.println(LOG+"makeStatusChange");
 		System.out.println("SL No is "+sl_no);
 		return daoImpl.makeStatusChange(sl_no);
+	}
+
+	public List<Queries> getTopQueries(String email) {
+		System.out.println(LOG+"getTopQueries");
+		System.out.println("Email is "+email);
+		return daoImpl.getTopQueries(email);
+	}
+
+	public List<StudentBean> getStudentsCount(String email) {
+		System.out.println(LOG+"getStudentsCount");
+		System.out.println("Email is "+email);
+		return daoImpl.getStudentsCount(email);
+	}
+	
+	public int getNoOfQueriesCount() 
+	{
+		System.out.println(LOG+"getNoOfQueriesCount");
+		return daoImpl.getNoOfQueriesCount();
 	}
 
 }

@@ -57,9 +57,7 @@ public class UserDetails implements Serializable {
 	
 	@Column(name="ActivatedStatus")
 	@NotFound(action=NotFoundAction.IGNORE)
-	private boolean activationStatus;
-	
-	
+	private boolean activationStatus;	
 	
 	public boolean isActivationStatus() {
 		return activationStatus;

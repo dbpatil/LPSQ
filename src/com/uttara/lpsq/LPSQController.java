@@ -60,13 +60,13 @@ public class LPSQController {
 	@RequestMapping(value={"/","/welcome"})
 	public String getHomePage()
 	{
-		String []arr= {"admin","solution_admin","responder","student"};
+		/*String []arr= {"admin","solution_admin","responder","student"};
 		for(String a:arr)			
 		{
 			if(rolesRef.contains(a)==false)
 				rolesRef.add(a);
 		}		
-		System.out.println("inside of getHomePage");
+	*/	System.out.println("inside of getHomePage");
 		return "HomePage";
 	}
 	
@@ -139,25 +139,27 @@ public class LPSQController {
 		}else
 		{
 			res=service.verifyUser(bean);
-			if(res!=null && res.equals(rolesRef.get(0)))
+			if(res!=null && res.equals("admin"))
 			{
 				session=request.getSession(true);
 				session.setAttribute("user", bean.getEmail());
 				session.setAttribute("menu", "AdminMenu");
 				return "AdminMenu";
-			}else if(res!=null && res.equals(rolesRef.get(1)))
+				
+				
+			}else if(res!=null && res.equals("solution_admin"))
 			{
 				session=request.getSession(true);
 				session.setAttribute("user", bean.getEmail());
 				session.setAttribute("menu", "SolutionAdminMenu");
 				return "SolutionAdminMenu";
-			}else if(res!=null && res.equals(rolesRef.get(2)))
+			}else if(res!=null && res.equals("responder"))
 			{
-				session=request.getSession(true);
-				session.setAttribute("user", bean.getEmail());
-				session.setAttribute("menu", "ResponderMenu");
-				return "ResponderMenu";
-			}else if(res!=null && res.equals(rolesRef.get(3)))
+				//session=request.getSession(true);
+				//session.setAttribute("user", bean.getEmail());
+				map.addAttribute("emsg", "Kindly Login Using Android App");
+				return "Message";
+			}else if(res!=null && res.equals("student"))
 			{
 				map.addAttribute("emsg", "Kindly Login Using Android App");
 				return "Message";
@@ -168,7 +170,8 @@ public class LPSQController {
 				return "Login";
 			}
 		}
-		return "Empty";
+		map.addAttribute("emsg", res);
+		return "Message";
 		
 	}
 	
@@ -688,6 +691,44 @@ public class LPSQController {
 		session.invalidate();
 		map.addAttribute("msg","<h1>Success</h1><br><h1><i>Logged out Successfully</i></h1>");
 		return "Logout";
+	}
+	
+	@RequestMapping("/MyQueries")
+	public String getMyQueries(HttpServletRequest  request,ModelMap map) 
+	{
+		System.out.println(LOG+"getMyQueries");
+		String email=request.getParameter("email");
+		JSONObject object= new JSONObject();
+		List<Queries> queries=service.getAllQueriesForStudent(email);
+		object.put("status", Constants.SUCCESS);
+		object.put("queries", getAllQueriesAsJsonArray(queries));
+		map.addAttribute("data", object);
+		return "Data";
+	}
+	
+	@RequestMapping("/TopQueries")
+	public String getTopQueries(HttpServletRequest  request,ModelMap map) 
+	{
+		System.out.println(LOG+"getTopQueries");
+		String email=request.getParameter("email");
+		List<Queries> queries=service.getTopQueries(email);
+		JSONObject object=new JSONObject();
+		object.put("status", Constants.SUCCESS);
+		object.put("topQueries", getAllQueriesAsJsonArray(queries));
+		map.addAttribute("data", object);
+		return "Data";		
+	}
+	
+	@RequestMapping("/openReportView")
+	public String openReportView(HttpServletRequest request,HttpSession session,ModelMap map) 
+	{
+		System.out.println(LOG+"openReportView");
+		String email=(String) session.getAttribute("user");
+		map.addAttribute("topicsCount", service.getAllTopic(email).size());
+		map.addAttribute("responderCount", service.getAllResponders(email).size());
+		map.addAttribute("studentsCount", service.getStudentsCount(email).size());
+		map.addAttribute("queriesCount", service.getNoOfQueriesCount());
+		return "Report";
 	}
 	
 }

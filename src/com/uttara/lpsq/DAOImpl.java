@@ -1,6 +1,7 @@
 package com.uttara.lpsq;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.hibernate.Query;
@@ -358,6 +359,7 @@ public class DAOImpl {
 		queries.setQueryByName(bean.getName());
 		queries.setQueryBySlNo(bean.getId()+"");
 		queries.setStudentBean(bean);
+		queries.setResponseCount(0);
 		bean.getQueries().add(queries);		
 		session=sessionFactory.openSession();
 		session.beginTransaction();
@@ -378,8 +380,7 @@ public class DAOImpl {
 		session.beginTransaction();
 		Queries queries=(Queries) session.createQuery("FROM Query WHERE Q_SL_NO=?").setInteger(0, Integer.parseInt(bean.getQuerySlNo())).list().get(0);
 		StudentBean studentBean=queries.getStudentBean();
-		List<Queries> queries2=studentBean.getQueries();
-		
+		List<Queries> queries2=studentBean.getQueries();		
 		int qslNo=Integer.parseInt(bean.getQuerySlNo());
 		one:for(Queries queries3:queries2)
 		{
@@ -388,6 +389,7 @@ public class DAOImpl {
 				queries3.getResponses().add(bean);
 				queries3.setStudentBean(studentBean);
 				queries3.setResponder(responderBean);
+				queries3.setResponseCount(queries3.getResponseCount()+1);
 				queries2.add(queries3);
 				break one;
 			}
@@ -469,7 +471,7 @@ public class DAOImpl {
 		session.beginTransaction();
 		StudentBean bean=(StudentBean) session.createQuery("FROM STUDENT WHERE email=?").setString(0, email).list().get(0);
 		UserDetails details=(UserDetails) session.createQuery("FROM USERDETAILS WHERE REG_SL_NO=?").setInteger(0, Integer.parseInt(bean.getIntrested())).list().get(0);
-		List<Topic>topics=session.createQuery("FROM TOPIC WHERE user_sl_no=?").setString(0, details.getBean().getId()+"").list();
+		List<Topic>topics=session.createQuery("FROM TOPIC WHERE user_sl_no=?").setString(0, details.getId()+"").list();
 		System.out.println("Fetched List is "+topics);
 		session.getTransaction().commit();
 		session.close();
@@ -514,8 +516,7 @@ public class DAOImpl {
 		session.beginTransaction();
 		ResponderBean bean=(ResponderBean) session.createQuery("FROM RESPONDER WHERE email=?").setString(0, email).list().get(0);
 		String topic=bean.getTopic();
-		UserDetails details=(UserDetails) session.createQuery("FROM USERDETAILS WHERE id=?").setInteger(0, bean.getUser_sl_no()).list().get(0);
-		
+		UserDetails details=(UserDetails) session.createQuery("FROM USERDETAILS WHERE id=?").setInteger(0, bean.getUser_sl_no()).list().get(0);		
 		String institute_sl_no=details.getBean().getId()+"";
 		System.out.println("Institute Sl No : "+institute_sl_no);
 		List<StudentBean> studentBeans=session.createQuery("FROM STUDENT WHERE intrested=?").setString(0, institute_sl_no).list();
@@ -605,8 +606,81 @@ public class DAOImpl {
 		session.getTransaction().commit();
 		session.close();
 		return Constants.SUCCESS;
-	}	
+	}
+
+	
+	List<Queries> topQueries=null;
+	public List<Queries> getTopQueries(String email) {
+		System.out.println(LOG+"getTopQueries");
+		System.out.println("Email is "+email);
+		topQueries=new ArrayList<Queries>();
+		session=sessionFactory.openSession();
+		session.beginTransaction();
+		StudentBean bean=(StudentBean) session.createQuery("FROM STUDENT WHERE email=?").setString(0, email).list().get(0);
+		int institute_sl_no=Integer.parseInt(bean.getIntrested());
+		
+		List<StudentBean> studentBeans=session.createQuery("FROM STUDENT WHERE intrested=?").setString(0, institute_sl_no+"").list();
+		System.out.println("List of Students : \n"+studentBeans);
+		for(StudentBean bean2:studentBeans)
+		{
+			List<Queries> list=session.createQuery("FROM Query WHERE queryEmail=?").setString(0, bean2.getEmail()).list();
+			
+			for(Queries queries:list)
+			{
+				List<ResponseBean> beans=session.createQuery("FROM RESPONSE WHERE querySlNo=?").setString(0, queries.getSl_no()+"").list();
+				for(ResponseBean a:beans)
+				{
+					List<FeedBackBean> feedBackBeans=session.createQuery("FROM FEEDBACK where RESPONSE_SL_NO=?").setInteger(0, a.getSl_no()).list();
+					a.setFeedBackBeans(feedBackBeans);					
+				}				
+				queries.setResponses(beans);
+				topQueries.add(queries);
+			}
+		}
+		session.getTransaction().commit();
+		session.close();
+		System.out.println("List of Queries of Listed \n"+topQueries);
+		Collections.sort(topQueries, new TopQueryComparator());
+		System.out.println("After Sorting a Queries \n"+topQueries);
+		if(topQueries.size()<6)
+			return topQueries;
+		else
+			return topQueries.subList(0, 5);
+	}
+
+	int listNoOfQueries=0;
+	public List<StudentBean> getStudentsCount(String email) {
+		System.out.println(LOG+"getStudentsCount");
+		System.out.println("Email is "+email);
+		UserDetails details=getCurrentUserDetails(email);
+		session=sessionFactory.openSession();
+		session.beginTransaction();
+		List<StudentBean> studentBeans=session.createQuery("FROM STUDENT WHERE intrested=?").setString(0, details.getBean().getId()+"").list();
+		listNoOfQueries=listNoOfQueries(studentBeans);
+		session.getTransaction().commit();
+		session.close();
+		return studentBeans;
+	}
 	
 	
+	public int listNoOfQueries(List<StudentBean> studentBeans) 
+	{
+		if(studentBeans!=null)
+		{
+			int i=0;
+			for(StudentBean bean: studentBeans)
+			{
+				List<Queries> list=session.createQuery("FROM Query WHERE queryEmail=?").setString(0, bean.getEmail()).list();
+				i+=list.size();
+			}
+			return i;
+		}else
+			return 0;
+	}
 	
+	public int getNoOfQueriesCount() 
+	{
+		System.out.println("No of Queries");
+		return listNoOfQueries;
+	}
 }

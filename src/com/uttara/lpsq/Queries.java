@@ -21,7 +21,7 @@ import org.json.simple.JSONObject;
 
 @Entity(name="Query")
 @Table(name="Queries")
-public class Queries 
+public class Queries  
 {
 	
 	@Id
@@ -40,6 +40,17 @@ public class Queries
 
 	public void setQueryEmail(String queryEmail) {
 		this.queryEmail = queryEmail;
+	}
+	
+	@Column(name="RESPONSE_COUNT")
+	private int responseCount;
+	
+	public int getResponseCount() {
+		return responseCount;
+	}
+
+	public void setResponseCount(int responseCount) {
+		this.responseCount = responseCount;
 	}
 
 	@Column(name="Query_Date")
@@ -90,6 +101,7 @@ public class Queries
 		object.put("queryByName", this.queryByName);
 		object.put("queryBySlNo", this.studentBean.getId()+"");
 		object.put("queryDate", this.queryDate);
+		object.put("queryLockedStatus", this.queryLockedStatus);
 		for(ResponseBean bean:responses)
 		{
 			array.add(bean.getJsonObject());
